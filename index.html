@@ -4,22 +4,112 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GitHub Казино</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; background: #222; color: #fff; text-align: center; }
-    .container { max-width: 600px; margin: auto; padding: 20px; }
-    input, button { margin: 10px; padding: 10px; font-size: 1em; }
-    .hidden { display: none; }
-    .game-button { margin: 10px; padding: 15px; font-size: 1.2em; background: #0a0; color: white; border: none; cursor: pointer; }
-    .game-button:hover { background: #0f0; }
-    .card { display: inline-block; padding: 10px; margin: 5px; background: #444; border-radius: 5px; transition: transform 0.3s ease; }
-    .card:hover { transform: scale(1.1); }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to bottom right, #1f1c2c, #928dab);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .container {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      width: 90%;
+      max-width: 700px;
+      transition: all 0.3s ease;
+    }
+    h1, h2 {
+      text-shadow: 2px 2px 4px #000;
+    }
+    input, button {
+      margin: 10px;
+      padding: 12px 20px;
+      font-size: 1em;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+    }
+    input {
+      width: 80%;
+    }
+    button {
+      background: linear-gradient(to right, #4caf50, #81c784);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #81c784;
+    }
+    .game-button {
+      background: linear-gradient(to right, #ff9800, #ffc107);
+      color: black;
+      font-weight: bold;
+    }
+    .game-button:hover {
+      box-shadow: 0 0 10px #ffc107;
+    }
+    .hidden {
+      display: none;
+    }
+    .card {
+      display: inline-block;
+      width: 80px;
+      height: 120px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin: 5px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      line-height: 120px;
+      font-size: 2em;
+      font-weight: bold;
+      color: #000;
+      animation: dealCard 0.5s ease forwards;
+    }
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    @keyframes dealCard {
+      0% {
+        transform: translateY(-50px) rotate(-10deg);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+    }
+    .transition-area {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
   <audio autoplay loop volume="0.3">
     <source src="https://www.bensound.com/bensound-music/bensound-jazzyfrenchy.mp3" type="audio/mpeg">
   </audio>
-  <div class="container">
+  <div class="container transition-area">
     <h1>🎰 GitHub Казино</h1>
     <div id="auth">
       <h2>Реєстрація / Вхід</h2>
@@ -39,183 +129,16 @@
       <button onclick="logout()">Вийти</button>
     </div>
 
-    <div id="game-area" class="hidden"></div>
+    <div id="game-area" class="hidden transition-area"></div>
   </div>
-
   <script>
-    const users = JSON.parse(localStorage.getItem('casino_users') || '{}');
-    let currentUser = null;
-
-    function saveUsers() {
-      localStorage.setItem('casino_users', JSON.stringify(users));
-    }
-
-    function register() {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value;
-      if (users[username]) {
-        authMsg.textContent = 'Користувач вже існує.';
-        return;
-      }
-      users[username] = { password, balance: 1000 };
-      saveUsers();
-      authMsg.textContent = 'Успішна реєстрація. Увійдіть.';
-    }
-
-    function login() {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value;
-      if (users[username]?.password === password) {
-        currentUser = username;
-        auth.style.display = 'none';
-        menu.classList.remove('hidden');
-        currentUserSpan.textContent = username;
-        updateBalance();
-      } else {
-        authMsg.textContent = 'Неправильне ім’я або пароль.';
-      }
-    }
-
-    function logout() {
-      currentUser = null;
-      menu.classList.add('hidden');
-      gameArea.classList.add('hidden');
-      auth.style.display = 'block';
-    }
-
-    function updateBalance() {
-      balanceSpan.textContent = users[currentUser].balance;
-      saveUsers();
-    }
-
-    function startBlackjack() {
-      const bet = prompt('Ваша ставка (₴):');
-      const betAmount = parseInt(bet);
-      if (isNaN(betAmount) || betAmount <= 0 || betAmount > users[currentUser].balance) {
-        alert('Невірна ставка.');
-        return;
-      }
-
-      users[currentUser].balance -= betAmount;
-      updateBalance();
-
-      let deck = [];
-      const suits = ['♠', '♥', '♦', '♣'];
-      const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-      suits.forEach(suit => values.forEach(value => deck.push({ suit, value })));
-      deck = deck.sort(() => Math.random() - 0.5);
-
-      const playerHand = [deck.pop(), deck.pop()];
-      const dealerHand = [deck.pop(), deck.pop()];
-
-      function handValue(hand) {
-        let val = 0, aces = 0;
-        hand.forEach(card => {
-          if (['J','Q','K'].includes(card.value)) val += 10;
-          else if (card.value === 'A') { val += 11; aces++; }
-          else val += parseInt(card.value);
-        });
-        while (val > 21 && aces > 0) { val -= 10; aces--; }
-        return val;
-      }
-
-      function renderHand(hand) {
-        return hand.map(card => `<span class="card">${card.value}${card.suit}</span>`).join('');
-      }
-
-      function renderGame() {
-        const val = handValue(playerHand);
-        gameArea.innerHTML = `
-          <h2>🃏 Блек Джек</h2>
-          <p><strong>Ваші карти:</strong> ${renderHand(playerHand)} (${val})</p>
-          <p><strong>Карта дилера:</strong> ${renderHand([dealerHand[0]])} [?]</p>
-          <button onclick="hit()">Ще карту</button>
-          <button onclick="stand()">Достатньо</button>
-          <p id="bj-result"></p>
-        `;
-        if (val > 21) {
-          document.getElementById('bj-result').textContent = 'Перебір! Ви програли.';
-          gameArea.innerHTML += `<br><button onclick="startBlackjack()">Грати знову</button>`;
-        }
-      }
-
-      window.hit = () => {
-        playerHand.push(deck.pop());
-        renderGame();
-      };
-
-      window.stand = () => {
-        let dealerVal = handValue(dealerHand);
-        while (dealerVal < 17) {
-          dealerHand.push(deck.pop());
-          dealerVal = handValue(dealerHand);
-        }
-        const playerVal = handValue(playerHand);
-        let result = '';
-        if (dealerVal > 21 || playerVal > dealerVal) {
-          result = 'Ви виграли!';
-          users[currentUser].balance += betAmount * 2;
-        } else if (playerVal === dealerVal) {
-          result = 'Нічия';
-          users[currentUser].balance += betAmount;
-        } else {
-          result = 'Ви програли!';
-        }
-        updateBalance();
-        gameArea.innerHTML = `
-          <h2>🃏 Блек Джек</h2>
-          <p><strong>Ваші карти:</strong> ${renderHand(playerHand)} (${playerVal})</p>
-          <p><strong>Карти дилера:</strong> ${renderHand(dealerHand)} (${dealerVal})</p>
-          <p><strong>${result}</strong></p>
-          <button onclick="startBlackjack()">Грати знову</button>
-        `;
-      };
-
-      renderGame();
-    }
-
-    function startRoulette() {
-      gameArea.classList.remove('hidden');
-      const number = Math.floor(Math.random() * 37);
-      const color = number === 0 ? 'зелений' : number % 2 === 0 ? 'чорний' : 'червоний';
-
-      gameArea.innerHTML = `
-        <h2>🎡 Рулетка</h2>
-        <p>Вгадайте число від 0 до 36</p>
-        <input type="number" id="bet-number" min="0" max="36" />
-        <input type="number" id="bet-amount" placeholder="Ставка ₴" min="1" />
-        <button onclick="spinRoulette()">Крутити</button>
-        <p id="roulette-result"></p>
-      `;
-
-      window.spinRoulette = () => {
-        const bet = parseInt(document.getElementById('bet-number').value);
-        const amount = parseInt(document.getElementById('bet-amount').value);
-        if (isNaN(bet) || bet < 0 || bet > 36 || isNaN(amount) || amount <= 0 || amount > users[currentUser].balance) {
-          alert('Невірне число або ставка.');
-          return;
-        }
-        users[currentUser].balance -= amount;
-        let resultText;
-        if (number === bet) {
-          users[currentUser].balance += amount * 36;
-          resultText = `Випало ${number} (${color}). Ви виграли ${amount * 36} ₴!`;
-        } else {
-          resultText = `Випало ${number} (${color}). Ви програли.`;
-        }
-        updateBalance();
-        document.getElementById('roulette-result').textContent = resultText;
-      };
-    }
-
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const authMsg = document.getElementById('auth-msg');
-    const auth = document.getElementById('auth');
-    const menu = document.getElementById('menu');
-    const currentUserSpan = document.getElementById('current-user');
-    const balanceSpan = document.getElementById('balance');
-    const gameArea = document.getElementById('game-area');
+    // Пример створення карти з іконкою (замінити у функції роздачі карт):
+    // const card = document.createElement('div');
+    // card.className = 'card';
+    // const img = document.createElement('img');
+    // img.src = 'https://upload.wikimedia.org/wikipedia/commons/5/57/Playing_card_heart_A.svg';
+    // card.appendChild(img);
+    // document.getElementById('game-area').appendChild(card);
   </script>
 </body>
 </html>
