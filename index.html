@@ -8,11 +8,12 @@
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
     body {
-      margin: 0;
       font-family: 'Roboto', sans-serif;
-      background: linear-gradient(to bottom right, #1f1c2c, #928dab);
+      background: radial-gradient(circle at top, #1e1e2f 0%, #151521 100%);
       color: #fff;
       display: flex;
       justify-content: center;
@@ -21,78 +22,91 @@
       overflow-x: hidden;
     }
     .container {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
-      width: 90%;
-      max-width: 700px;
-      transition: all 0.3s ease;
+      background: linear-gradient(145deg, #2a2a3b, #1c1c2b);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      width: 100%;
+      max-width: 720px;
+      animation: fadeInUp 0.6s ease-in-out;
+    }
+    @keyframes fadeInUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
     h1, h2 {
-      text-shadow: 2px 2px 4px #000;
-    }
-    input, button {
-      margin: 10px;
-      padding: 12px 20px;
-      font-size: 1em;
-      border-radius: 10px;
-      border: none;
-      outline: none;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ffc107;
+      text-shadow: 0 0 10px #000;
     }
     input {
-      width: 80%;
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 12px;
+      background-color: #2e2e3e;
+      color: #fff;
+      font-size: 1em;
     }
     button {
-      background: linear-gradient(to right, #4caf50, #81c784);
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(to right, #ff512f, #dd2476);
       color: white;
+      font-size: 1em;
+      font-weight: bold;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.3s ease;
     }
     button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px #81c784;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(255, 81, 47, 0.6);
     }
     .game-button {
-      background: linear-gradient(to right, #ff9800, #ffc107);
-      color: black;
-      font-weight: bold;
+      background: linear-gradient(to right, #24c6dc, #514a9d);
     }
     .game-button:hover {
-      box-shadow: 0 0 10px #ffc107;
+      box-shadow: 0 6px 20px rgba(81, 74, 157, 0.6);
     }
     .hidden {
       display: none;
     }
     .card {
       display: inline-block;
-      width: 80px;
-      height: 120px;
+      width: 100px;
+      height: 140px;
       background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      margin: 5px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      margin: 10px;
       position: relative;
       overflow: hidden;
-      text-align: center;
-      line-height: 120px;
-      font-size: 2em;
-      font-weight: bold;
-      color: #000;
-      animation: dealCard 0.5s ease forwards;
+      animation: dealCard 0.6s ease forwards;
+      transform-origin: top center;
     }
     .card img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
     @keyframes dealCard {
       0% {
-        transform: translateY(-50px) rotate(-10deg);
+        transform: scale(0.5) rotate(-20deg);
         opacity: 0;
       }
       100% {
-        transform: translateY(0) rotate(0deg);
+        transform: scale(1) rotate(0);
         opacity: 1;
       }
     }
@@ -102,6 +116,11 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    #auth-msg {
+      text-align: center;
+      margin-top: 10px;
+      color: #f88;
     }
   </style>
 </head>
@@ -115,7 +134,6 @@
       <h2>Реєстрація / Вхід</h2>
       <input type="text" id="username" placeholder="Ім'я користувача" />
       <input type="password" id="password" placeholder="Пароль" />
-      <br />
       <button onclick="register()">Реєстрація</button>
       <button onclick="login()">Вхід</button>
       <p id="auth-msg"></p>
@@ -123,7 +141,7 @@
 
     <div id="menu" class="hidden">
       <h2>Ласкаво просимо, <span id="current-user"></span>!</h2>
-      <p>💰 Баланс: <span id="balance">0</span> ₴</p>
+      <p style="text-align: center;">💰 Баланс: <span id="balance">0</span> ₴</p>
       <button class="game-button" onclick="startBlackjack()">🃏 Блек Джек</button>
       <button class="game-button" onclick="startRoulette()">🎡 Рулетка</button>
       <button onclick="logout()">Вийти</button>
@@ -132,7 +150,7 @@
     <div id="game-area" class="hidden transition-area"></div>
   </div>
   <script>
-    // Пример створення карти з іконкою (замінити у функції роздачі карт):
+    // Приклад створення картки з іконкою
     // const card = document.createElement('div');
     // card.className = 'card';
     // const img = document.createElement('img');
